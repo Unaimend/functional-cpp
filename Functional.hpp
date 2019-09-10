@@ -53,7 +53,7 @@ namespace pure
     */
 
     template<typename C, typename T>
-    std::function<T(const C& container)> sum = fold<C, T>(std::placeholders::_1, std::placeholders_2)
+    std::function<T(const C& container)> sum = std::bind(fold<C, T>,std::placeholders::_1, [](const int a, const int b){return a + b;},0);
 
 
 }
