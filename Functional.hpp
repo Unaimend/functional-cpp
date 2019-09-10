@@ -20,12 +20,12 @@ namespace inplace
 
 namespace pure
 {
-    template <typename T>
-    std::vector<T> map(const std::vector<T>& vector, std::function<T(const T)> f)
+    template <typename C, typename T>
+    C map(const C& vector, std::function<T(const T)> f)
     {
         // Performs copy ellision which is required by standard since c++17
         //http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/n4713.pdf#page=258
-        std::vector<T> temp;
+        C temp;
 
         for(const T& it: vector)
         {
