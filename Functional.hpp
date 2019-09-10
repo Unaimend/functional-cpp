@@ -45,11 +45,15 @@ namespace pure
         return accumulator;
     }
 
-    template< typename T>
+    /* template< typename T>
     T sum(const std::vector<T>& vector)
     {
         return fold<std::vector<int>, int>(vector,[](const int a, const int b){return a + b;}, 0);
     }
+    */
+
+    template<typename C, typename T>
+    std::function<T(const C& container)> sum = fold<C, T>(std::placeholders::_1, std::placeholders_2)
 
 
 }
