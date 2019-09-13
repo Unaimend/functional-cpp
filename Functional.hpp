@@ -1,7 +1,9 @@
 #ifndef __FUNCTIONAL__HPP__
 #define __FUNCTIONAL__HPP__
+#include <list>
 #include <vector>
 #include <functional>
+#include <type_traits>
 
 
 namespace func
@@ -20,6 +22,14 @@ namespace inplace
 
 namespace pure
 {
+    // STATT std::fuction<...>, F f und std::is_convetible_to verwenden
+    template<class A, class B, class C>
+    std::function<A(C, B)> flip(std::function<A(B, C)> func)
+    {
+        using namespace std::placeholders;
+        return std::bind(func, _2, _1);
+    }
+
     template <typename C, typename T>
     C map(const C& vector, std::function<T(const T)> f)
     {
@@ -34,27 +44,43 @@ namespace pure
     return temp;
     }
 
-    template <typename C, typename T>
-    T fold(const C& container, std::function<T(const T, const T)> f, const T accu)
+    template <typename C, typename T, typename F>
+    T fold(const C& container, F f, const T accu)
     {
+        static_assert(
+            std::is_convertible<F,std::function<T(const T, const T)>>::value,
+            "fold requires a function of T <>(T, T)"
+            );
+
+        std::cout << "CALLED2 " << std::endl;
         T accumulator = accu;
-        for(auto it = container.begin(); it != container.end(); ++it)
+        for(const auto& it: container)
         {
-            accumulator = f(*it, accumulator);
+            accumulator = f(it, accumulator);
         }
         return accumulator;
     }
 
-    /* template< typename T>
-    T sum(const std::vector<T>& vector)
+
+    template <typename T, typename F>
+    T fold(std::list<T> list,  F f, const T accu)
     {
-        return fold<std::vector<int>, int>(vector,[](const int a, const int b){return a + b;}, 0);
+        static_assert(
+            std::is_convertible<F,std::function<T(const T, const T)>>::value,
+            "fold requires a function of T <>(T, T)"
+            );
+        std::cout << "CALLED " << std::endl;
+        T accumulator = accu;
+        for(const auto& it: list)
+        {
+            accumulator = f(it, accumulator);
+        }
+        return accumulator;
     }
-    */
 
-    template<typename C, typename T>
+    /*template<typename C, typename T>
     std::function<T(const C& container)> sum = std::bind(fold<C, T>,std::placeholders::_1, std::plus<T>(),0);
-
+    */
 
 }
 }
