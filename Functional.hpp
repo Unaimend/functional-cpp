@@ -20,39 +20,71 @@ namespace inplace
     }
 }
 
+/*
+template <typename C,
+typename T = typename C::value_type>
+std::unordered_map<T, unsigned int> count_occurrences(
+const C& collection)
+*/
+
+
+    //TODO Genauer ueber die performance probleme von std::function informieren
 namespace pure
 {
-    // STATT std::fuction<...>, F f und std::is_convetible_to verwenden
-    template<class A, class B, class C>
-    std::function<A(C, B)> flip(std::function<A(B, C)> func)
+    // Statt der template spezialisierungen sollte ich concepts 
+    template<class A, class B, class C, class F>
+    auto flip( F func) -> std::function<A(C, B)>
     {
+        static_assert(
+            std::is_convertible<F,std::function<A(B, C)>>::value,
+            "flip requires a function of A (B,C)"
+            );
         using namespace std::placeholders;
         return std::bind(func, _2, _1);
     }
 
-    template <typename C, typename T>
-    C map(const C& vector, std::function<T(const T)> f)
+    template <typename C, typename T, typename F>
+    C map(const C& vector, F f)
     {
-        // Performs copy ellision which is required by standard since c++17
-        //http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/n4713.pdf#page=258
-        C temp;
+        static_assert(
+            std::is_convertible<F,std::function<T(const T)>>::value,
+            "map requires a function of T (T)" //TODO Tut es nicht T1 (T2) waere korrekt
+            );
 
+        C temp;
         for(const T& it: vector)
         {
             temp.push_back(f(it));
         }
-    return temp;
+        return temp;
     }
 
+
+    template <typename T, typename F>
+    std::list<T> map(const std::list<T> list,  F f)
+    {
+        static_assert(
+            std::is_convertible<F,std::function<T(const T)>>::value,
+            "map requires a function of T (T)"
+            );
+        std::list<T> temp;
+
+        for(const T& it: list)
+        {
+            temp.push_back(f(it));
+        }
+        return temp;
+    }
+
+    // Ist es unnoetig F in den funktionsparametern mitzugeben(siehe sum. bzgl. std::plus<T>)
     template <typename C, typename T, typename F>
     T fold(const C& container, F f, const T accu)
     {
         static_assert(
             std::is_convertible<F,std::function<T(const T, const T)>>::value,
-            "fold requires a function of T <>(T, T)"
+            "fold requires a function of T (T, T)"
             );
 
-        std::cout << "CALLED2 " << std::endl;
         T accumulator = accu;
         for(const auto& it: container)
         {
@@ -61,15 +93,32 @@ namespace pure
         return accumulator;
     }
 
+    template <typename T, typename C, typename F>
+    C filter(const C& container, F f)
+    {
+        // TODO Das muss schoener gehen
+        T val;
+        using ret_type = decltype(f(val));
+        static_assert(std::is_same<ret_type, bool>::value);
+        C temp;
+        for(const auto& it : container)
+        {
+            if(f(it))
+            {
+                temp.push_back(it);
+            }
+        }
+        return temp;
+    }
+
 
     template <typename T, typename F>
-    T fold(std::list<T> list,  F f, const T accu)
+    T fold(std::list<T> list, F f, const T accu)
     {
         static_assert(
             std::is_convertible<F,std::function<T(const T, const T)>>::value,
-            "fold requires a function of T <>(T, T)"
+            "fold requires a function of T (T, T)"
             );
-        std::cout << "CALLED " << std::endl;
         T accumulator = accu;
         for(const auto& it: list)
         {
@@ -78,10 +127,12 @@ namespace pure
         return accumulator;
     }
 
-    /*template<typename C, typename T>
-    std::function<T(const C& container)> sum = std::bind(fold<C, T>,std::placeholders::_1, std::plus<T>(),0);
-    */
+    // TOTHINK replace std::bind with lambdas so the compiler cant optimize more easily
+    template<typename C, typename T>
+    std::function<T(const C& container)> sum = std::bind(fold<C, T, std::plus<T>>,std::placeholders::_1, std::plus<T>(),0);
 
+    template<typename C, typename T>
+    std::function<T(const C& container)> product = std::bind(fold<C, T, std::multiplies<T>>,std::placeholders::_1, std::multiplies<T>(),1);
 }
 }
 #endif
