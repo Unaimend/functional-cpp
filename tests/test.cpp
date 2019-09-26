@@ -76,3 +76,29 @@ TEST_CASE("Copying works", "[LIST]")
 
     REQUIRE((listWithOneTwoThree == copiedList));
 }
+
+
+TEST_CASE("push_back doesnt change old list, \ncorrrectly appends", "[LIST]")
+{
+    List<int> listWithOneTwoThree{{1,2,3}};
+    List<int> listWithOneTwoThreeFour = listWithOneTwoThree.push_back(4);
+
+    REQUIRE(listWithOneTwoThree.length() == 3);
+    REQUIRE(listWithOneTwoThreeFour.length() == 4);
+
+    REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
+    REQUIRE((listWithOneTwoThreeFour == List<int>{{1,2,3,4}}));
+}
+
+TEST_CASE("Push_front doesnt change old list, \ncorrrectly prepends", "[LIST]")
+{
+    List<int> listWithOneTwoThree{{1,2,3}};
+    List<int> listWithFourOneTwoThree = listWithOneTwoThree.push_front(4);
+
+
+    REQUIRE(listWithOneTwoThree.length() == 3);
+    REQUIRE(listWithFourOneTwoThree.length() == 4);
+
+    REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
+    REQUIRE((listWithFourOneTwoThree== List<int>{{4,1,2,3}}));
+}
