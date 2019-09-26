@@ -142,8 +142,6 @@ namespace pure
 
 
 
-    //TODO Implement optimizations for rvalues(eliminating copies)
-    //push_back() && push_front() &&
     template<typename T>
     class List
     {
@@ -162,24 +160,11 @@ namespace pure
             }
         };
 
-        /*
-        class iterator : public std::iterator<std::forward_iterator_tag, Node<T>, long, Node<T>*, Node<T>&>
-        {
-        public:
-            Node<T> start;
-            explicit iterator(Node<T> _start) : start(_start) {}
-
-
-        };
-        */
         std::shared_ptr<Node<T>> head;
         std::shared_ptr<Node<T>> tail;
         std::size_t __length = 0;
-
     public:
 
-        //iterator begin() {return head;}
-        //iterator end() {return tail->next;}
         List() = default;
         List(const std::initializer_list<T>& values)
         {
@@ -262,19 +247,16 @@ namespace pure
         List push_back(const T& value) const
         {
             List temp;
-            temp.__length = length();
             if(head)
             {
                 temp.head = head;
                 temp.tail = tail;
                 temp.tail->next = std::make_shared<Node<T>>(value);
-                ++temp.__length;
                 temp.tail = tail->next;
             } else
             {
                 //This happens when we call push_back on an empty list
                 temp.head = std::make_shared<Node<T>>(value);
-                ++temp.__length;
                 temp.tail = temp.head->next;
             }
             return temp;
@@ -285,12 +267,10 @@ namespace pure
             ;
         }
 
-        List push_front(const T& value) const
+        List prepend(T value) const
         {
             List newList;
             newList.head = std::make_shared<Node<T>>(value);
-            newList.__length = length();
-            ++newList.__length;
             newList.head->next = head;
             newList.tail = tail;
             return newList;
@@ -331,8 +311,8 @@ namespace pure
             std::cout << "Tail: " << tail->value << std::endl;
         }
 
-        
-        
+        //TODO Iterators
+
     };
 
     //bitmapped vector tree/prefix tree
