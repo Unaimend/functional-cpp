@@ -186,12 +186,11 @@ namespace pure
         //TODO Flatten the recursion
         ~List() = default;
 
-        List(const List& rhs) :
-            head(rhs.head), tail(rhs.tail), __length(rhs.length()) {}
+        List(const List& rhs) = default;
 
         List(List&& rhs) = delete;
 
-        List& operator=(List& rhs) 
+        List& operator=(List& rhs)
         {
             head = rhs.head;
             tail = rhs.tail;
