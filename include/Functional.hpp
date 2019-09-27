@@ -336,24 +336,6 @@ namespace pure
             return __length;
         }
 
-        void print() const
-        {
-            auto current = head;
-            std::cout << "Head: " << head->value << std::endl;
-            while(current->next)
-            {
-                current = current->next;
-                std::cout <<"Value: " << current->value << std::endl;
-                if(current == tail)
-                {
-                    break;
-                }
-            }
-            std::cout << "Tail: " << tail->value << std::endl;
-        }
-
-        
-        
     };
 
     //bitmapped vector tree/prefix tree
