@@ -169,24 +169,38 @@ namespace pure
             }
         };
 
-        /*
-        class iterator : public std::iterator<std::forward_iterator_tag, Node<T>, long, Node<T>*, Node<T>&>
+
+        class iterator : public std::iterator<std::forward_iterator_tag, std::shared_ptr<Node<T>>, long, std::shared_ptr<Node<T>>*, std::shared_ptr<Node<T>>&>
         {
         public:
-            Node<T> start;
-            explicit iterator(Node<T> _start) : start(_start) {}
+            std::shared_ptr<Node<T>> start;
+            explicit iterator(std::shared_ptr<Node<T>> _start) : start(_start) {}
+            iterator operator++()
+            {
+                start = start->next;
+                return *this;
+            }
 
+            bool operator!=(const iterator & other) const
+            {
+                return start != other.start;
+            }
 
+            const Node<T>& operator*() const
+            {
+                return *start;
+            }
         };
-        */
+
         std::shared_ptr<Node<T>> head;
         std::shared_ptr<Node<T>> tail;
         std::size_t __length = 0;
 
     public:
 
-        //iterator begin() {return head;}
-        //iterator end() {return tail->next;}
+        iterator begin() {return iterator(head);}
+        iterator end() {return iterator(tail->next);}
+
         List() = default;
         List(const std::initializer_list<T>& values)
         {
