@@ -20,3 +20,5 @@ TAGS
 Tests
 
 include/\.projectile
+
+include/\.#Functional\.hpp

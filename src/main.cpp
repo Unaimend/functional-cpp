@@ -130,4 +130,15 @@ auto listi2 = listi1.push_back(13);
 listi1.print();
 std::cout << "list2" << std::endl;
 listi2.print();
+
+//auto listi3 = func::pure::map<func::pure::List<int>, int, decltype(inc)>(listi1, inc);
+
+/*
+for(const auto& it : listi1)
+{
+    std::cout << "YAH" << it.to_string() << std::endl;
+    }*/
+
+
+
 }

@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <cassert>
-
+#include <iostream>
 namespace func
 {
 namespace inplace
@@ -367,7 +367,8 @@ namespace pure
 
 
 template <typename F>
-class lazy_val {
+class lazy_val
+{
 private:
     F m_computation;
     mutable bool m_cache_initialized;
