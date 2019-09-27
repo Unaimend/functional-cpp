@@ -48,16 +48,18 @@ namespace pure
         return std::bind(func, _2, _1);
     }
 
-    template <typename C, typename T, typename F>
-    C map(const C& vector, F f)
+    template <typename Container,
+              typename ArgType,
+              typename F>
+    Container map(const Container& vector, F f)
     {
         static_assert(
-            std::is_convertible<F,std::function<T(const T)>>::value,
+            std::is_convertible<F,std::function<ArgType(const ArgType)>>::value,
             "map requires a function of T (T)" //TODO Tut es nicht T1 (T2) waere korrekt
             );
 
-        C temp;
-        for(const T& it: vector)
+        Container temp;
+        for(const ArgType& it: vector)
         {
             temp.push_back(f(it));
         }
