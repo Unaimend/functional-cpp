@@ -162,6 +162,11 @@ namespace pure
                 value = rhs.value;
                 next = rhs.next;
             }
+
+            std::string to_string() const
+            {
+                return std::to_string(value);
+            }
         };
 
         /*
