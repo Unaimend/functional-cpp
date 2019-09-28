@@ -3,8 +3,6 @@
 #include <list>
 
 #include "../include/Functional.hpp"
-
-
 struct A
 {
     int a = 5;
@@ -68,7 +66,7 @@ void first_second_ref(int first, int& second)
 
 int main(int argc, char const *argv[])
 {
-
+/*
 std::vector<int> a{1,2,3,4,5};
 func::inplace::map(a, iinc);
 for(const auto& it : a)
@@ -113,7 +111,7 @@ std::vector<int> after = func::pure::filter<int>(to_test, is_positive);
 
 for(const auto& it : after)
     std::cout << "Filter"<< it << std::endl;
-
+*/
 puts("-----------------------------------------------------------------");
 
 
@@ -121,24 +119,39 @@ puts("-----------------------------------------------------------------");
 //o.cant_change();
 
 
-func::pure::List<int> listi_init= {1,2,3,4,5,6};
 
-func::pure::List<int> listi1{{1,2,3,4,5,6}};
-//auto listi3 = listi2.remove_front();
-listi1.print();
-auto listi2 = listi1.push_back(13);
-listi1.print();
-std::cout << "list2" << std::endl;
-listi2.print();
+func::pure::List<int> listi1;
+std::vector what{1,2,3,4,5,6};
+auto func  = [](const auto& node)
+    {
+        return node.value*node.value;
+    };
 
-//auto listi3 = func::pure::map<func::pure::List<int>, int, decltype(inc)>(listi1, inc);
 
-/*
-for(const auto& it : listi1)
+auto l2 = listi1.push_back(8);
+auto l3 = l2.push_back(9);
+auto l4 = l3.push_back(10);
+auto l5 = l4.push_back(11);
+
+func::pure::List<int> l6;
+
+for(const auto& it: l5)
 {
-    std::cout << "YAH" << it.to_string() << std::endl;
-    }*/
+    //irgendwas mit dieser zuweisen bzw. wie push_back funtuiniert ist kacke(copy-swap idiom?)
+    std::cout << it.to_string() << std::endl;
+    l6 = l6.push_back(func(it));
+}
 
+
+for(const auto& it: l6)
+{
+    //irgendwas mit dieser zuweisen bzw. wie push_back funtuiniert ist kacke(copy-swap idiom?)
+    std::cout << it.to_string() << std::endl;
+}
+func::pure::List<int> listi3 = func::pure::map(l6, func); 
+for(const auto& it : listi3){
+    std::cout << "YAH  " << it.to_string() << std::endl;
+    }
 
 
 }
