@@ -78,7 +78,7 @@ TEST_CASE("Copying works", "[LIST]")
 }
 
 
-TEST_CASE("push_back doesnt change old list, \ncorrrectly appends", "[LIST]")
+TEST_CASE("push_back" , "[LIST]")
 {
     List<int> listWithOneTwoThree{{1,2,3}};
     List<int> listWithOneTwoThreeFour = listWithOneTwoThree.push_back(4);
@@ -88,6 +88,15 @@ TEST_CASE("push_back doesnt change old list, \ncorrrectly appends", "[LIST]")
 
     REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
     REQUIRE((listWithOneTwoThreeFour == List<int>{{1,2,3,4}}));
+
+    SECTION("push_back on empty list")
+    {
+        List<int> emptyList{};
+        auto listWithOne = emptyList.push_back(1);
+
+        REQUIRE(listWithOne.length() == 1);
+        REQUIRE((listWithOne == List<int>{{1}}));
+    }
 }
 
 TEST_CASE("Push_front doesnt change old list, \ncorrrectly prepends", "[LIST]")
