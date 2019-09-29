@@ -143,11 +143,12 @@ auto ar = func::pure::fold(l5, add, 0);
 
 
 
-/*std::vector<int> ints{0,1,2,3,4,5};
+
 auto even = [](int i){ return 0 == i % 2; };
+//auto view = nano::views::filter(l5, even);
+/*std::vector<int> ints{0,1,2,3,4,5};
 auto square = [](int i) { return i * i; };
 
-auto view = l5 | nano::views::filter(even)
 for (int i : ints | nano::views::filter(even) | nano::views::transform(square))
 {
     std::cout << i << ' ';
