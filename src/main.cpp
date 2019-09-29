@@ -1,7 +1,6 @@
 #include <vector>
 #include <iostream>
 #include <list>
-
 #include "../include/Functional.hpp"
 struct A
 {
@@ -41,7 +40,7 @@ void iinc(int& a)
 
 
 
-int inc(const int a)
+const int inc(const int a)
 {
     return a+1;
 }
@@ -122,9 +121,10 @@ puts("-----------------------------------------------------------------");
 
 func::pure::List<int> listi1;
 std::vector what{1,2,3,4,5,6};
-auto func  = [](const auto& node)
+const auto func  = [](/*const func::pure::List<int>::Node*/const auto& val)
     {
-        return node.value*node.value;
+        //std::cout << node.to_string() << std::endl;
+        return val * val;
     };
 
 
@@ -133,25 +133,27 @@ auto l3 = l2.push_back(9);
 auto l4 = l3.push_back(10);
 auto l5 = l4.push_back(11);
 
-func::pure::List<int> l6;
+//auto wadsad = func::pure::map(what, inc);
+auto l6 = func::pure::map(l5, inc);
+auto l7 = func::pure::map(what, inc);
 
-for(const auto& it: l5)
-{
-    //irgendwas mit dieser zuweisen bzw. wie push_back funtuiniert ist kacke(copy-swap idiom?)
-    std::cout << it.to_string() << std::endl;
-    l6 = l6.push_back(func(it));
-}
 
+auto ar = func::pure::fold(l5, add, 0);
+
+std::cout << "ar" << ar << std::endl;
 
 for(const auto& it: l6)
 {
-    //irgendwas mit dieser zuweisen bzw. wie push_back funtuiniert ist kacke(copy-swap idiom?)
-    std::cout << it.to_string() << std::endl;
+    std::cout << it.value << std::endl;
 }
-func::pure::List<int> listi3 = func::pure::map(l6, func); 
-for(const auto& it : listi3){
-    std::cout << "YAH  " << it.to_string() << std::endl;
-    }
 
 
+for(const auto& it: l7)
+{
+    std::cout << it << std::endl;
 }
+}
+
+
+
+
