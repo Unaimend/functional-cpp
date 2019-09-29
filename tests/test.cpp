@@ -3,8 +3,13 @@
 #define CATCH_CONFIG_MAIN
 #include "../include/Functional.hpp"
 #include "../external/Catch2/single_include/catch2/catch.hpp"
-
 using namespace func::pure;
+
+TEST_CASE("map", "[FUNTIONS]")
+{
+
+}
+
 TEST_CASE("Empty List as length 0", "[LIST]")
 {
     List<int> emptyList;
@@ -69,25 +74,32 @@ TEST_CASE("Inequality check works", "[LIST]")
 }
 
 
-TEST_CASE("Copying works", "[LIST]")
+TEST_CASE("Copying", "[LIST]")
 {
-    List<int> listWithOneTwoThree{{1,2,3}};
-    List<int> copiedList = listWithOneTwoThree;
+    SECTION("Copying filled list")
+    {
+        List<int> listWithOneTwoThree{{1,2,3}};
+        List<int> copiedList = listWithOneTwoThree;
 
-    REQUIRE((listWithOneTwoThree == copiedList));
+        REQUIRE(listWithOneTwoThree.length() == copiedList.length());
+        REQUIRE((listWithOneTwoThree == copiedList));
+    }
 }
 
 
 TEST_CASE("push_back" , "[LIST]")
 {
-    List<int> listWithOneTwoThree{{1,2,3}};
-    List<int> listWithOneTwoThreeFour = listWithOneTwoThree.push_back(4);
+    SECTION("push_back on filled list")
+    {
+        List<int> listWithOneTwoThree{{1,2,3}};
+        List<int> listWithOneTwoThreeFour = listWithOneTwoThree.push_back(4);
 
-    REQUIRE(listWithOneTwoThree.length() == 3);
-    REQUIRE(listWithOneTwoThreeFour.length() == 4);
+        REQUIRE(listWithOneTwoThree.length() == 3);
+        REQUIRE(listWithOneTwoThreeFour.length() == 4);
 
-    REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
-    REQUIRE((listWithOneTwoThreeFour == List<int>{{1,2,3,4}}));
+        REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
+        REQUIRE((listWithOneTwoThreeFour == List<int>{{1,2,3,4}}));
+    }
 
     SECTION("push_back on empty list")
     {
@@ -99,15 +111,27 @@ TEST_CASE("push_back" , "[LIST]")
     }
 }
 
-TEST_CASE("Push_front doesnt change old list, \ncorrrectly prepends", "[LIST]")
+TEST_CASE("Push_front", "[LIST]")
 {
-    List<int> listWithOneTwoThree{{1,2,3}};
-    List<int> listWithFourOneTwoThree = listWithOneTwoThree.push_front(4);
+    SECTION("push_front on filled list")
+    {
+        List<int> listWithOneTwoThree{{1,2,3}};
+        List<int> listWithFourOneTwoThree = listWithOneTwoThree.push_front(4);
 
 
-    REQUIRE(listWithOneTwoThree.length() == 3);
-    REQUIRE(listWithFourOneTwoThree.length() == 4);
+        REQUIRE(listWithOneTwoThree.length() == 3);
+        REQUIRE(listWithFourOneTwoThree.length() == 4);
 
-    REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
-    REQUIRE((listWithFourOneTwoThree== List<int>{{4,1,2,3}}));
+        REQUIRE((listWithOneTwoThree == List<int>{{1,2,3}}));
+        REQUIRE((listWithFourOneTwoThree== List<int>{{4,1,2,3}}));
+    }
+
+    SECTION("push_front on empty list")
+    {
+        List<int> emptyList{};
+        auto listWithOne = emptyList.push_front(1);
+
+        REQUIRE(listWithOne.length() == 1);
+        REQUIRE((listWithOne == List<int>{{1}}));
+    }
 }
