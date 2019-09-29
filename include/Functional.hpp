@@ -333,13 +333,16 @@ namespace pure
                 temp.tail = tail;
                 temp.tail->next = std::make_shared<Node<T>>(value);
                 ++temp.__length;
+                //TODO Was soll das
                 temp.tail = tail->next;
-            } else
+            }
+            else
             {
                 //This happens when we call push_back on an empty list
+                //TODO HIER ISN BUG DENKE ICH
                 temp.head = std::make_shared<Node<T>>(value);
                 ++temp.__length;
-                temp.tail = temp.head->next;
+                temp.tail = temp.head;
             }
             return temp;
         }
