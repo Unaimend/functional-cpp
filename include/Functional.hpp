@@ -111,26 +111,10 @@ namespace pure
         {
             if(f(it))
             {
-                temp.push_back(it);
+                temp = temp.push_back(it);
             }
         }
         return temp;
-    }
-
-
-    template <typename T, typename F>
-    T fold(std::list<T> list, F f, const T accu)
-    {
-        static_assert(
-            std::is_convertible<F,std::function<T(const T, const T)>>::value,
-            "fold requires a function of T (T, T)"
-            );
-        T accumulator = accu;
-        for(const auto& it: list)
-        {
-            accumulator = f(it, accumulator);
-        }
-        return accumulator;
     }
 
     // TOTHINK replace std::bind with lambdas so the compiler cant optimize more easily
@@ -148,6 +132,7 @@ namespace pure
     template<typename T>
     class List
     {
+    public:
         template<typename D>
         class Node
         {
@@ -167,8 +152,9 @@ namespace pure
                 return std::to_string(value);
             }
         };
+        using value_type = Node<T>;
 
-
+    private:
         class iterator : public std::iterator<std::forward_iterator_tag, std::shared_ptr<Node<T>>, long, std::shared_ptr<Node<T>>*, std::shared_ptr<Node<T>>&>
         {
         public:
@@ -398,6 +384,52 @@ namespace pure
     {
         
     };
+
+
+    template <typename ArgType,
+              typename F,
+              typename Ret = typename std::result_of<F(ArgType)>::type
+              >
+    List<Ret> map(const List<ArgType> list,  F f)
+    {
+        //TODO Look at std::result_of page 214 in c++ func. programming
+        static_assert(
+            std::is_convertible<F,std::function<Ret(const ArgType)>>::value,
+            "map requires a function of const  Ret (const ArgType)" //TODO Tut es nicht T1 (T2) waere korrekt
+            );
+
+        List<Ret> temp;
+        //Container must support iteration
+        for(typename List<ArgType>::value_type it: list)
+        {
+            //Container must be move assgnable
+            //TODO: Think about how eliminate all the useless copies
+            //SOLUTUION: Make a deep-copy and provide a map futions which is overloaded only for rvalues in the data structure
+            //TODO Figure out how make this solution stl compatible
+            temp = temp.push_back(f(it.value));
+            // temp.push_back(f(it));
+        }
+        //Cotainer must be copyable
+        return temp;
+    }
+
+    template <typename T,
+              typename F>
+    T fold(const func::pure::List<T>& list, F f, const T accu)
+    {
+        static_assert(
+            std::is_convertible<F,std::function<T(const T, const T)>>::value,
+            "fold requires a function of T (T, T)"
+            );
+
+        T accumulator = accu;
+        for(const auto& it: list)
+        {
+            accumulator = f(it.value, accumulator);
+        }
+        return accumulator;
+    }
+
 
 }
 
