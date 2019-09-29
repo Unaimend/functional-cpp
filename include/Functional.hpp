@@ -219,21 +219,27 @@ namespace pure
             tail = current;
         }
         //TODO Flatten the recursion
-        ~List() = default;
+        ~List() noexcept = default;
 
         List(const List& rhs) = default;
 
         List(List&& rhs) = delete;
 
-        List& operator=(List& rhs)
+        List& operator=(const List& rhs) noexcept
         {
             head = rhs.head;
             tail = rhs.tail;
-            __length == rhs.length();
+            __length = rhs.length();
             return *this;
         }
 
-        List& operator=(List&& rhs) = delete;
+        List& operator=(List&& rhs) noexcept
+        {
+            head = std::move(rhs.head);
+            tail = std::move(rhs.tail);
+            __length = std::move(rhs.length());
+            return *this;
+        }
 
         List deep_copy() &
         {
@@ -262,13 +268,21 @@ namespace pure
         {
             return this;
         }
+
+        bool operator==(const List& rhs) const noexcept
+        {
             if(length() != rhs.length()) return false;
             auto currentLhs = head;
             auto currentRhs = rhs.head;
-            while((currentLhs = currentLhs->next))
+            for(std::size_t i = 0; i < length(); ++i)
             {
-                currentRhs = currentRhs->next;
-                if(currentLhs->value != currentRhs->value)
+                auto lhsVal = (*this)[i];
+                auto rhsVal = rhs[i];
+                if(lhsVal == rhsVal)
+                {
+                    ;
+                }
+                else
                 {
                     return false;
                 }
