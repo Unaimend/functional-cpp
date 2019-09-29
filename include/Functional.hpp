@@ -44,38 +44,39 @@ namespace pure
         return std::bind(func, _2, _1);
     }
 
-    template <typename Container,
-              typename ArgType,
-              typename F>
-    Container map(const Container& vector, F f)
+
+    //TODO Use ContainerIn and ContainerOut instead of nested templates
+    //https://github.com/Dobiasd/FunctionalPlus/blob/master/include/fplus/transform.hpp
+    template <typename ArgType,
+              typename F,
+              typename Ret = typename std::result_of<F(ArgType)>::type,
+              template <typename> typename Container>
+    auto map(const Container<ArgType>& vector, F f)
     {
+
         static_assert(
-            std::is_convertible<F,std::function<ArgType(const ArgType)>>::value,
-            "map requires a function of T (T)" //TODO Tut es nicht T1 (T2) waere korrekt
+            std::is_convertible<F,std::function<Ret(const ArgType)>>::value,
+            "map requires a function of const Ret (const ArgType)" 
             );
 
-        Container temp;
+        static_assert(
+            std::is_copy_constructible<Container<ArgType>>::value,
+            "The container must be copy constructible"
+            );
+
+        static_assert(
+            std::is_move_assignable<Container<ArgType>>::value,
+            "The container must be move assinable"
+            );
+
+        Container<Ret> temp;
+        //Container must support iteration
         for(const ArgType& it: vector)
         {
             temp.push_back(f(it));
+            // temp.push_back(f(it));
         }
-        return temp;
-    }
-
-
-    template <typename T, typename F>
-    std::list<T> map(const std::list<T> list,  F f)
-    {
-        static_assert(
-            std::is_convertible<F,std::function<T(const T)>>::value,
-            "map requires a function of T (T)"
-            );
-        std::list<T> temp;
-
-        for(const T& it: list)
-        {
-            temp.push_back(f(it));
-        }
+        //Cotainer must be copyable
         return temp;
     }
 
