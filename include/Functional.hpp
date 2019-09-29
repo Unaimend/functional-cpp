@@ -312,7 +312,6 @@ namespace pure
                 ++intCounter;
             } while((current = current->next));
 
-            std::cout << current->value << std::endl;
             return current->value;
         }
 
@@ -320,6 +319,12 @@ namespace pure
         //so the question whether the tail optimization is worth it or not
         List push_back(const T& value) const
         {
+            //push_back on a list with max. length would overflow std::size_t __length
+            if (length() == std::numeric_limits<std::size_t>::max())
+            {
+                throw std::overflow_error{"push_back on a list with max. length is not permitted"};
+            }
+
             List temp;
             temp.__length = length();
             if(head)
@@ -346,6 +351,13 @@ namespace pure
 
         List push_front(const T& value) const
         {
+            //push_front on a list with max. length would overflow std::size_t __length
+            if (length() == std::numeric_limits<std::size_t>::max())
+            {
+
+                throw std::overflow_error{"push_front on a list with max. length is not permitted"};
+            }
+
             List newList;
             newList.head = std::make_shared<Node<T>>(value);
             newList.__length = length();
