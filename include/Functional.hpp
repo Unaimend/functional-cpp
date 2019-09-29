@@ -196,9 +196,8 @@ namespace pure
         std::size_t __length = 0;
 
     public:
-
-        iterator begin() {return iterator(head);}
-        iterator end() {return iterator(tail->next);}
+        iterator begin() const {return iterator(head);}
+        iterator end() const {return iterator(tail->next);}
 
         List() = default;
         List(const std::initializer_list<T>& values)
@@ -206,6 +205,7 @@ namespace pure
             //TODO What happens with a empty init list
             auto begin = std::begin(values);
             auto end = std::end(values);
+
             head = std::make_shared<Node<T>>(*begin);
             ++begin;
             ++__length;
