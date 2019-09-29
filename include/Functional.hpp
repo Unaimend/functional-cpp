@@ -235,8 +235,33 @@ namespace pure
 
         List& operator=(List&& rhs) = delete;
 
-        bool operator==(const List& rhs)
+        List deep_copy() &
         {
+            List temp;
+
+            size_t counter = 0;
+            size_t length_ = length();
+
+            auto val1 = this->operator[](counter);
+            temp.head = std::make_shared<Node<T>>(val1);
+            std::shared_ptr<Node<T>> current = temp.head;
+
+            for(;counter < length_; ++counter)
+            {
+                auto val = this->operator[](counter);
+                current->next = std::make_shared<Node<T>>(val);
+                current = current->next;
+            }
+            temp.tail = current;
+            temp.__length = length();
+            return temp;
+        }
+
+
+        List deep_copy() &&
+        {
+            return this;
+        }
             if(length() != rhs.length()) return false;
             auto currentLhs = head;
             auto currentRhs = rhs.head;
