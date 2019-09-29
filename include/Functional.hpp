@@ -11,6 +11,10 @@
 #include <stdexcept>
 #include <cassert>
 #include <iostream>
+//TODO Read https://www.fluentcpp.com/2018/04/24/following-conventions-stl/
+//TODO https://hannes.hauswedell.net/post/2018/04/11/view1/
+
+
 namespace func
 {
 namespace inplace
@@ -25,15 +29,7 @@ namespace inplace
     }
 }
 
-/*
-template <typename C,
-typename T = typename C::value_type>
-std::unordered_map<T, unsigned int> count_occurrences(
-const C& collection)
-*/
-
-
-    //TODO Genauer ueber die performance probleme von std::function informieren
+//TODO Genauer ueber die performance probleme von std::function informieren
 namespace pure
 {
     // Statt der template spezialisierungen sollte ich concepts 
