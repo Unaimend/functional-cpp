@@ -81,7 +81,9 @@ namespace pure
     }
 
     // Ist es unnoetig F in den funktionsparametern mitzugeben(siehe sum. bzgl. std::plus<T>)
-    template <typename C, typename T, typename F>
+    template <typename C,
+              typename T = typename C::value_type,
+              typename F>
     T fold(const C& container, F f, const T accu)
     {
         static_assert(
