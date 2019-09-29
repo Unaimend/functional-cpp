@@ -367,7 +367,7 @@ namespace pure
             return newList;
         }
 
-        List remove_front() const
+        List pop_front() const noexcept
         {
             List newList;
             newList.head = head->next;
@@ -375,10 +375,11 @@ namespace pure
             return newList;
         }
 
-        const std::optional<Node<T>> getHead() const
+        const Node<T>& getHead() const noexcept
         {
             //TODO I think this won't compile if T(head) is not copyable because std::make_optional copies its data.
-            return head ? std::make_optional(head) : std::nullopt;
+            assert(length() >= 1);
+            return head;
         }
 
         std::size_t length() const noexcept
