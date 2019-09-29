@@ -2,6 +2,8 @@
 #include <iostream>
 #include <list>
 #include "../include/Functional.hpp"
+
+#include "../external/NanoRange/nanorange.hpp"
 struct A
 {
     int a = 5;
@@ -120,11 +122,10 @@ puts("-----------------------------------------------------------------");
 
 
 func::pure::List<int> listi1;
-std::vector what{1,2,3,4,5,6};
+std::vector what{100,2,3,4,5,6};
 const auto func  = [](/*const func::pure::List<int>::Node*/const auto& val)
     {
-        //std::cout << node.to_string() << std::endl;
-        return val * val;
+        std::cout << val << std::endl;
     };
 
 
@@ -135,23 +136,35 @@ auto l5 = l4.push_back(11);
 
 //auto wadsad = func::pure::map(what, inc);
 auto l6 = func::pure::map(l5, inc);
-auto l7 = func::pure::map(what, inc);
+//auto l7 = func::pure::map(what, inc);
 
 
 auto ar = func::pure::fold(l5, add, 0);
 
-std::cout << "ar" << ar << std::endl;
 
+
+/*std::vector<int> ints{0,1,2,3,4,5};
+auto even = [](int i){ return 0 == i % 2; };
+auto square = [](int i) { return i * i; };
+
+auto view = l5 | nano::views::filter(even)
+for (int i : ints | nano::views::filter(even) | nano::views::transform(square))
+{
+    std::cout << i << ' ';
+}
+
+
+std::cout << "ar" << ar << std::endl;*/
+/*
 for(const auto& it: l6)
 {
     std::cout << it.value << std::endl;
 }
 
-
 for(const auto& it: l7)
 {
     std::cout << it << std::endl;
-}
+}*/
 }
 
 
