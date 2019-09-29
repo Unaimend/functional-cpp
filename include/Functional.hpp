@@ -290,13 +290,13 @@ namespace pure
             return true;
         }
 
-        bool operator!=(const List& rhs)
+        bool operator!=(const List& rhs) const noexcept
         {
             return !(*this == rhs);
         }
 
-        // operator++
-        const T& operator[](int counter) const
+        // operator++ concat
+        const T& operator[](std::size_t counter) const
         {
             if(counter >= length())
             {
