@@ -13,7 +13,7 @@
 #include <iostream>
 //TODO Read https://www.fluentcpp.com/2018/04/24/following-conventions-stl/
 //TODO https://hannes.hauswedell.net/post/2018/04/11/view1/
-
+//TODO Remove volatile from types in all functions
 
 namespace func
 {
@@ -177,12 +177,12 @@ namespace pure
             }
         };
 
-        std::shared_ptr<Node<T>> head;
+        std::shared_ptr<Node<T>> mHead;
         std::shared_ptr<Node<T>> tail;
         std::size_t __length = 0;
 
     public:
-        iterator begin() const {return iterator(head);}
+        iterator begin() const {return iterator(mHead);}
         iterator end() const {return iterator(tail->next);}
 
         List() = default;
@@ -192,10 +192,10 @@ namespace pure
             auto begin = std::begin(values);
             auto end = std::end(values);
 
-            head = std::make_shared<Node<T>>(*begin);
+            mHead = std::make_shared<Node<T>>(*begin);
             ++begin;
             ++__length;
-            std::shared_ptr<Node<T>> current = head;
+            std::shared_ptr<Node<T>> current = mHead;
             for(;begin != end; ++begin)
             {
                 current->next = std::make_shared<Node<T>>(*begin);
@@ -213,7 +213,7 @@ namespace pure
 
         List& operator=(const List& rhs) noexcept
         {
-            head = rhs.head;
+            mHead = rhs.mHead;
             tail = rhs.tail;
             __length = rhs.length();
             return *this;
@@ -221,7 +221,7 @@ namespace pure
 
         List& operator=(List&& rhs) noexcept
         {
-            head = std::move(rhs.head);
+            mHead = std::move(rhs.mHead);
             tail = std::move(rhs.tail);
             __length = std::move(rhs.length());
             return *this;
@@ -235,8 +235,8 @@ namespace pure
             size_t length_ = length();
 
             auto val1 = this->operator[](counter);
-            temp.head = std::make_shared<Node<T>>(val1);
-            std::shared_ptr<Node<T>> current = temp.head;
+            temp.mHead = std::make_shared<Node<T>>(val1);
+            std::shared_ptr<Node<T>> current = temp.mHead;
 
             for(;counter < length_; ++counter)
             {
@@ -258,8 +258,8 @@ namespace pure
         bool operator==(const List& rhs) const noexcept
         {
             if(length() != rhs.length()) return false;
-            auto currentLhs = head;
-            auto currentRhs = rhs.head;
+            auto currentLhs = mHead;
+            auto currentRhs = rhs.mHead;
             for(std::size_t i = 0; i < length(); ++i)
             {
                 auto lhsVal = (*this)[i];
@@ -289,7 +289,7 @@ namespace pure
                 throw std::out_of_range("Index is out of range");
             }
             std::size_t intCounter = 0;
-            auto current = head;
+            auto current = mHead;
 
             do
             {
@@ -313,9 +313,9 @@ namespace pure
 
             List temp;
             temp.__length = length();
-            if(head)
+            if(mHead)
             {
-                temp.head = head;
+                temp.mHead = mHead;
                 temp.tail = tail;
                 temp.tail->next = std::make_shared<Node<T>>(value);
                 ++temp.__length;
@@ -326,9 +326,9 @@ namespace pure
             {
                 //This happens when we call push_back on an empty list
                 //TODO HIER ISN BUG DENKE ICH
-                temp.head = std::make_shared<Node<T>>(value);
+                temp.mHead = std::make_shared<Node<T>>(value);
                 ++temp.__length;
-                temp.tail = temp.head;
+                temp.tail = temp.mHead;
             }
             return temp;
         }
@@ -348,10 +348,10 @@ namespace pure
             }
 
             List newList;
-            newList.head = std::make_shared<Node<T>>(value);
+            newList.mHead = std::make_shared<Node<T>>(value);
             newList.__length = length();
             ++newList.__length;
-            newList.head->next = head;
+            newList.mHead->next = mHead;
             newList.tail = tail;
             return newList;
         }
@@ -359,16 +359,16 @@ namespace pure
         List pop_front() const noexcept
         {
             List newList;
-            newList.head = head->next;
+            newList.mHead = mHead->next;
             newList.tail = tail;
             return newList;
         }
 
-        const Node<T>& getHead() const noexcept
+        const Node<T>& head() const noexcept
         {
-            //TODO I think this won't compile if T(head) is not copyable because std::make_optional copies its data.
+            //TODO I think this won't compile if T(mHead) is not copyable because std::make_optional copies its data.
             assert(length() >= 1);
-            return head;
+            return mHead;
         }
 
         std::size_t length() const noexcept
