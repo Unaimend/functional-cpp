@@ -14,7 +14,7 @@
 //TODO Read https://www.fluentcpp.com/2018/04/24/following-conventions-stl/
 //TODO https://hannes.hauswedell.net/post/2018/04/11/view1/
 //TODO Remove volatile from types in all functions
-
+//TODO TypeClasses for all container like inherit from functor or monad?
 namespace func
 {
 namespace inplace
@@ -127,8 +127,11 @@ namespace pure
 
 
 
-    //TODO Implement optimizations for rvalues(eliminating copies)
     //push_back() && push_front() &&
+    //TODO List::tail is wrong, it should return all the elements except the head not only the last
+    //TODO make the forward iterator of list a biderictional iterator
+    //TODO Supports a constructor which takes iterators
+    //TODO Support swap, empty, reverse_iterators, size initializer, assign(Primer P. 338)
     template<typename T>
     class List
     {
@@ -138,7 +141,7 @@ namespace pure
         {
         public:
             Node(T val) : value(val){}
-            T value;
+            const T value;
             std::shared_ptr<Node<T>> next = nullptr;
 
             Node& operator=(const Node& rhs)
@@ -151,7 +154,25 @@ namespace pure
             {
                 return std::to_string(value);
             }
+
+            ~Node()
+            {
+                //TODO WHY DOES IT WORK
+                auto next_node = std::move(next);
+                while (next_node)
+                {
+                    //If I am not the sole owner of my tail don't do anything
+                    if (!next_node.unique())
+                        break;
+                    std::shared_ptr<Node<T>> _tail;
+                    std::swap(_tail, next_node->next);
+                    next_node.reset();
+                    next_node = std::move(_tail);
+                }
+            }
         };
+
+
         using value_type = Node<T>;
 
     private:
@@ -171,19 +192,19 @@ namespace pure
                 return start != other.start;
             }
 
-            const Node<T>& operator*() const
+            const T& operator*() const
             {
-                return *start;
+                return start->value;
             }
         };
 
         std::shared_ptr<Node<T>> mHead;
-        std::shared_ptr<Node<T>> tail;
+        std::shared_ptr<Node<T>> mTail;
         std::size_t __length = 0;
 
     public:
-        iterator begin() const {return iterator(mHead);}
-        iterator end() const {return iterator(tail->next);}
+        iterator cbegin() const {return iterator(mHead);}
+        iterator cend() const {return iterator(mTail->next);}
 
         List() = default;
         List(const std::initializer_list<T>& values)
@@ -191,7 +212,7 @@ namespace pure
             //TODO What happens with a empty init list
             auto begin = std::begin(values);
             auto end = std::end(values);
-
+            //TODO Das sollte in die schleife
             mHead = std::make_shared<Node<T>>(*begin);
             ++begin;
             ++__length;
@@ -202,10 +223,10 @@ namespace pure
                 ++__length;
                 current = current->next;
             }
-            tail = current;
+            mTail = current;
         }
         //TODO Flatten the recursion
-        ~List() noexcept = default;
+        ~List() = default;
 
         List(const List& rhs) = default;
 
@@ -214,7 +235,7 @@ namespace pure
         List& operator=(const List& rhs) noexcept
         {
             mHead = rhs.mHead;
-            tail = rhs.tail;
+            mTail = rhs.mTail;
             __length = rhs.length();
             return *this;
         }
@@ -222,7 +243,7 @@ namespace pure
         List& operator=(List&& rhs) noexcept
         {
             mHead = std::move(rhs.mHead);
-            tail = std::move(rhs.tail);
+            mTail = std::move(rhs.mTail);
             __length = std::move(rhs.length());
             return *this;
         }
@@ -244,7 +265,7 @@ namespace pure
                 current->next = std::make_shared<Node<T>>(val);
                 current = current->next;
             }
-            temp.tail = current;
+            temp.mTail = current;
             temp.__length = length();
             return temp;
         }
@@ -301,8 +322,7 @@ namespace pure
             return current->value;
         }
 
-        //I think that the tail optimization prevents me from reusing data when inserting in the "middle" of the list
-        //so the question whether the tail optimization is worth it or not
+        //TODO Find out how to optimize this for rvalues or don't because on O3 it's reansonly fast
         List push_back(const T& value) const
         {
             //push_back on a list with max. length would overflow std::size_t __length
@@ -316,11 +336,11 @@ namespace pure
             if(mHead)
             {
                 temp.mHead = mHead;
-                temp.tail = tail;
-                temp.tail->next = std::make_shared<Node<T>>(value);
+                temp.mTail = mTail;
+                temp.mTail->next = std::make_shared<Node<T>>(value);
                 ++temp.__length;
                 //TODO Was soll das
-                temp.tail = tail->next;
+                temp.mTail = mTail->next;
             }
             else
             {
@@ -328,7 +348,7 @@ namespace pure
                 //TODO HIER ISN BUG DENKE ICH
                 temp.mHead = std::make_shared<Node<T>>(value);
                 ++temp.__length;
-                temp.tail = temp.mHead;
+                temp.mTail = temp.mHead;
             }
             return temp;
         }
@@ -352,7 +372,7 @@ namespace pure
             newList.__length = length();
             ++newList.__length;
             newList.mHead->next = mHead;
-            newList.tail = tail;
+            newList.mTail = mTail;
             return newList;
         }
 
@@ -360,24 +380,216 @@ namespace pure
         {
             List newList;
             newList.mHead = mHead->next;
-            newList.tail = tail;
+            newList.mTail = mTail;
             return newList;
         }
 
-        const Node<T>& head() const noexcept
+        const std::optional<T> head() const noexcept
         {
             //TODO I think this won't compile if T(mHead) is not copyable because std::make_optional copies its data.
-            assert(length() >= 1);
-            return mHead;
+            //SOLTUION std::optional uses some form of direct initialization but isn't this still expensive?
+            return (mHead) ? std::make_optional<T>(mHead->value) : std::nullopt;
+        }
+
+
+        const std::optional<T> tail() const noexcept
+        {
+            //TODO I think this won't compile if T(mHead) is not copyable because std::make_optional copies its data.
+            //SOLTUION std::optional uses some form of direct initialization but isn't this still expensive?
+            return (mTail) ? std::make_optional<T>(mTail->value) : std::nullopt;
         }
 
         std::size_t length() const noexcept
         {
             return __length;
         }
-
     };
 
+    template<typename T>
+    class BST
+    {
+        struct Node
+        {
+            Node(std::shared_ptr<const Node> const & lft, T val, std::shared_ptr<const Node> const & rgt)
+                : _lft(lft), _val(val), _rgt(rgt)
+                {}
+            std::shared_ptr<const Node> _lft;
+            T      _val;
+            std::shared_ptr<const Node> _rgt;
+        };
+        explicit BST(std::shared_ptr<const Node> const & node) : _root(node) {}
+    public:
+        BST() {}
+        BST(BST const & lft, T val, BST const & rgt)
+            : _root(std::make_shared<const Node>(lft._root, val, rgt._root))
+        {
+        }
+        BST(std::initializer_list<T> init)
+        {
+            BST t;
+            for (T v: init)
+            {
+                t = t.inserted(v);
+            }
+            _root = t._root;
+        }
+        bool isEmpty() const { return !_root; }
+        T root() const
+        {
+            assert(!isEmpty());
+            return _root->_val;
+        }
+        BST left() const
+        {
+            assert(!isEmpty());
+            return BST(_root->_lft);
+        }
+        BST right() const
+        {
+            assert(!isEmpty());
+            return BST(_root->_rgt);
+        }
+        bool member(T x) const
+        {
+            if (isEmpty())
+                return false;
+            T y = root();
+            if (x < y)
+                return left().member(x);
+            else if (y < x)
+                return right().member(x);
+            else
+                return true;
+        }
+        BST inserted(T x) const
+        {
+            //If I am empty construt a new Tree with me as the root
+            if (isEmpty())
+                return BST(BST(), x, BST());
+            //Get the root for comparison
+            T y = root();
+            if (x < y)
+                return BST(left().inserted(x), y, right());
+            else if (y < x)
+                return BST(left(), y, right().inserted(x));
+            else
+                return BST(left().inserted(x), y, right());
+            }
+    private:
+        std::shared_ptr<const Node> _root;
+    };
+
+    template<class T, class F>
+    void forEach(BST<T> t, F f)
+    {
+        if (!t.isEmpty())
+        {
+            forEach(t.left(), f);
+            f(t.root());
+            forEach(t.right(), f);
+        }
+
+    }
+
+
+
+    template<typename T>
+    class BST_IT
+    {
+        struct Node
+        {
+            Node(std::shared_ptr<const Node> const & lft, T val, std::shared_ptr<const Node> const & rgt)
+                : lft(lft), val(val), rgt(rgt)
+                {}
+            std::shared_ptr<const Node> lft;
+            T      val;
+            std::shared_ptr<const Node> rgt;
+        };
+
+        explicit BST_IT(std::shared_ptr<const Node> const & node) : _root(node) {}
+    public:
+        BST_IT() {}
+        BST_IT(BST_IT const & lft, T val, BST_IT const & rgt)
+            : _root(std::make_shared<const Node>(lft._root, val, rgt._root))
+        {
+        }
+        BST_IT(std::initializer_list<T> init)
+        {
+            BST_IT t;
+            for (T v: init)
+            {
+                t = t.inserted(v);
+            }
+            _root = t._root;
+        }
+        bool isEmpty() const { return !_root; }
+        const T& root() const
+        {
+            assert(!isEmpty());
+            return _root->val;
+        }
+        BST_IT left() const
+        {
+            assert(!isEmpty());
+            return BST_IT(_root->lft);
+        }
+        BST_IT right() const
+        {
+            assert(!isEmpty());
+            return BST_IT(_root->rgt);
+        }
+        bool member(T x) const
+        {
+            if (isEmpty())
+                return false;
+            std::shared_ptr<const Node>& y = _root;
+
+            while(y)
+            {
+                if(x < y->val)
+                {
+                    y = y->lft;
+                }
+                else if ( x > y->val)
+                {
+                    y = y->rgt;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        BST_IT inserted(T x) const
+        {
+            //If I am empty construt a new Tree with me as the root
+            if (isEmpty())
+                return BST_IT(BST_IT(), x, BST_IT());
+            //Get the root for comparison
+            T y = root();
+            if (x < y)
+                return BST_IT(left().inserted(x), y, right());
+            else if (y < x)
+                return BST_IT(left(), y, right().inserted(x));
+            else
+                return BST_IT(left().inserted(x), y, right());
+            }
+    private:
+        mutable std::shared_ptr<const Node> _root;
+    };
+
+    template<class T, class F>
+    void forEach(BST_IT<T> t, F f)
+    {
+        if (!t.isEmpty())
+        {
+            forEach(t.left(), f);
+            f(t.root());
+            forEach(t.right(), f);
+        }
+
+    }
     //bitmapped vector tree/prefix tree
     template<typename T>
     class vector
