@@ -1,6 +1,7 @@
 #ifndef __FUNCTIONAL__HPP__
 #define __FUNCTIONAL__HPP__
 #include <list>
+
 #include <vector>
 #include <functional>
 #include <type_traits>
@@ -498,19 +499,21 @@ namespace pure
     {
         struct Node
         {
-            Node(std::shared_ptr<const Node> const & lft, T val, std::shared_ptr<const Node> const & rgt)
+
+            Node(T _val) : val(_val){}
+            Node(std::shared_ptr<Node> const & lft, T val, std::shared_ptr<Node> const & rgt)
                 : lft(lft), val(val), rgt(rgt)
                 {}
-            std::shared_ptr<const Node> lft;
+            std::shared_ptr<Node> lft;
             T      val;
-            std::shared_ptr<const Node> rgt;
+            std::shared_ptr<Node> rgt;
         };
 
-        explicit BST_IT(std::shared_ptr<const Node> const & node) : _root(node) {}
+        explicit BST_IT(std::shared_ptr<Node> const & node) : _root(node) {}
     public:
         BST_IT() {}
         BST_IT(BST_IT const & lft, T val, BST_IT const & rgt)
-            : _root(std::make_shared<const Node>(lft._root, val, rgt._root))
+            : _root(std::make_shared<Node>(lft._root, val, rgt._root))
         {
         }
         BST_IT(std::initializer_list<T> init)
@@ -542,7 +545,7 @@ namespace pure
         {
             if (isEmpty())
                 return false;
-            std::shared_ptr<const Node>& y = _root;
+            std::shared_ptr<Node>& y = _root;
 
             while(y)
             {
@@ -567,16 +570,37 @@ namespace pure
             if (isEmpty())
                 return BST_IT(BST_IT(), x, BST_IT());
             //Get the root for comparison
-            T y = root();
-            if (x < y)
-                return BST_IT(left().inserted(x), y, right());
-            else if (y < x)
-                return BST_IT(left(), y, right().inserted(x));
-            else
-                return BST_IT(left().inserted(x), y, right());
+            BST_IT<T> temp{};
+            std::shared_ptr<Node>& currentTemp = temp._root;
+            std::shared_ptr<Node> current = _root;
+            while(current)
+            {
+                if (x <= current->val)
+                {
+                    //Copy each visited node
+                    currentTemp = std::make_shared<Node>(current->val);
+                    //"Share" the part which stays the same
+                    currentTemp->rgt = current->rgt;
+                    //Go in the correct direction
+                    current = current->lft;
+                    currentTemp = currentTemp->lft;
+                }
+                else
+                {
+                    currentTemp = std::make_shared<Node>(current->val);
+                    //"Share" the part which stays the same
+                    currentTemp->lft = current->lft;
+                    //Go in the correct direction
+                    currentTemp = currentTemp->rgt;
+                    current = current->rgt;
+                }
             }
+
+            currentTemp = std::make_shared<Node>(x);
+            return temp;
+        }
     private:
-        mutable std::shared_ptr<const Node> _root;
+        mutable std::shared_ptr<Node> _root;
     };
 
     template<class T, class F>
