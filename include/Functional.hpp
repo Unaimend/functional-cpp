@@ -33,6 +33,17 @@ namespace inplace
 //TODO Genauer ueber die performance probleme von std::function informieren
 namespace pure
 {
+    template <typename C,
+              typename = std::void_t<>>
+    struct is_iterable: std::false_type {};
+
+    template <typename C>
+    struct is_iterable<
+        C, std::void_t<decltype(*begin(std::declval<C>())),
+                  decltype(end(std::declval<C>()))>>
+        : std::true_type {};
+
+
     // Statt der template spezialisierungen sollte ich concepts 
     template<class A, class B, class C, class F>
     auto flip( F func) -> std::function<A(C, B)>
@@ -57,7 +68,7 @@ namespace pure
 
         static_assert(
             std::is_convertible<F,std::function<Ret(const ArgType)>>::value,
-            "map requires a function of const Ret (const ArgType)" 
+            "map requires a function of const Ret (const ArgType)"
             );
 
         static_assert(
@@ -70,14 +81,19 @@ namespace pure
             "The container must be move assinable"
             );
 
+        static_assert(
+            is_iterable<Container<ArgType>>::value,
+            "The container must be iterable"
+            );
+
         Container<Ret> temp;
-        //Container must support iteration
         for(const ArgType& it: vector)
         {
+            //TODO use std::invoke
             temp.push_back(f(it));
             // temp.push_back(f(it));
         }
-        //Cotainer must be copyable
+        //Cotainer must be copyable(even if copy ellision is performed the ctors must still be definde)
         return temp;
     }
 
@@ -406,125 +422,37 @@ namespace pure
         }
     };
 
-    template<typename T>
-    class BST
-    {
-        struct Node
-        {
-            Node(std::shared_ptr<const Node> const & lft, T val, std::shared_ptr<const Node> const & rgt)
-                : _lft(lft), _val(val), _rgt(rgt)
-                {}
-            std::shared_ptr<const Node> _lft;
-            T      _val;
-            std::shared_ptr<const Node> _rgt;
-        };
-        explicit BST(std::shared_ptr<const Node> const & node) : _root(node) {}
-    public:
-        BST() {}
-        BST(BST const & lft, T val, BST const & rgt)
-            : _root(std::make_shared<const Node>(lft._root, val, rgt._root))
-        {
-        }
-        BST(std::initializer_list<T> init)
-        {
-            BST t;
-            for (T v: init)
-            {
-                t = t.inserted(v);
-            }
-            _root = t._root;
-        }
-        bool isEmpty() const { return !_root; }
-        T root() const
-        {
-            assert(!isEmpty());
-            return _root->_val;
-        }
-        BST left() const
-        {
-            assert(!isEmpty());
-            return BST(_root->_lft);
-        }
-        BST right() const
-        {
-            assert(!isEmpty());
-            return BST(_root->_rgt);
-        }
-        bool member(T x) const
-        {
-            if (isEmpty())
-                return false;
-            T y = root();
-            if (x < y)
-                return left().member(x);
-            else if (y < x)
-                return right().member(x);
-            else
-                return true;
-        }
-        BST inserted(T x) const
-        {
-            //If I am empty construt a new Tree with me as the root
-            if (isEmpty())
-                return BST(BST(), x, BST());
-            //Get the root for comparison
-            T y = root();
-            if (x < y)
-                return BST(left().inserted(x), y, right());
-            else if (y < x)
-                return BST(left(), y, right().inserted(x));
-            else
-                return BST(left().inserted(x), y, right());
-            }
-    private:
-        std::shared_ptr<const Node> _root;
-    };
-
-    template<class T, class F>
-    void forEach(BST<T> t, F f)
-    {
-        if (!t.isEmpty())
-        {
-            forEach(t.left(), f);
-            f(t.root());
-            forEach(t.right(), f);
-        }
-
-    }
-
-
 
     template<typename T>
     class BST_IT
     {
         struct Node
         {
+            Node() = default;
+            Node(T _val) : val(_val) {}
 
-            Node(T _val) : val(_val){}
-            Node(std::shared_ptr<Node> const & lft, T val, std::shared_ptr<Node> const & rgt)
-                : lft(lft), val(val), rgt(rgt)
-                {}
-            std::shared_ptr<Node> lft;
             T      val;
+            std::shared_ptr<Node> parent;
             std::shared_ptr<Node> rgt;
+            std::shared_ptr<Node> lft;
         };
 
         explicit BST_IT(std::shared_ptr<Node> const & node) : _root(node) {}
+
+    private:
+        std::shared_ptr<Node> _root;
+
     public:
-        BST_IT() {}
-        BST_IT(BST_IT const & lft, T val, BST_IT const & rgt)
-            : _root(std::make_shared<Node>(lft._root, val, rgt._root))
+        BST_IT() = default;
+        BST_IT(T val): _root(std::make_shared<Node>(val)){};
+
+        BST_IT insert(T x)
         {
+            //LOOK AT LIST_PUSH_BACK
+
+
         }
-        BST_IT(std::initializer_list<T> init)
-        {
-            BST_IT t;
-            for (T v: init)
-            {
-                t = t.inserted(v);
-            }
-            _root = t._root;
-        }
+
         bool isEmpty() const { return !_root; }
         const T& root() const
         {
@@ -545,7 +473,7 @@ namespace pure
         {
             if (isEmpty())
                 return false;
-            std::shared_ptr<Node>& y = _root;
+            std::shared_ptr<Node> y = _root;
 
             while(y)
             {
@@ -564,43 +492,6 @@ namespace pure
             }
             return false;
         }
-        BST_IT inserted(T x) const
-        {
-            //If I am empty construt a new Tree with me as the root
-            if (isEmpty())
-                return BST_IT(BST_IT(), x, BST_IT());
-            //Get the root for comparison
-            BST_IT<T> temp{};
-            std::shared_ptr<Node>& currentTemp = temp._root;
-            std::shared_ptr<Node> current = _root;
-            while(current)
-            {
-                if (x <= current->val)
-                {
-                    //Copy each visited node
-                    currentTemp = std::make_shared<Node>(current->val);
-                    //"Share" the part which stays the same
-                    currentTemp->rgt = current->rgt;
-                    //Go in the correct direction
-                    current = current->lft;
-                    currentTemp = currentTemp->lft;
-                }
-                else
-                {
-                    currentTemp = std::make_shared<Node>(current->val);
-                    //"Share" the part which stays the same
-                    currentTemp->lft = current->lft;
-                    //Go in the correct direction
-                    currentTemp = currentTemp->rgt;
-                    current = current->rgt;
-                }
-            }
-
-            currentTemp = std::make_shared<Node>(x);
-            return temp;
-        }
-    private:
-        mutable std::shared_ptr<Node> _root;
     };
 
     template<class T, class F>
