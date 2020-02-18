@@ -1,17 +1,22 @@
 [
 {
   "directory": "/home/td/dev/cpp/functional",
-  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra   -o CMakeFiles/Benchmarking.dir/benchmark/benchmark.cpp.o -c /home/td/dev/cpp/functional/benchmark/benchmark.cpp",
+  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra -Wswitch-enum   -o CMakeFiles/Benchmarking.dir/benchmark/benchmark.cpp.o -c /home/td/dev/cpp/functional/benchmark/benchmark.cpp",
   "file": "/home/td/dev/cpp/functional/benchmark/benchmark.cpp"
 },
 {
   "directory": "/home/td/dev/cpp/functional",
-  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra   -o CMakeFiles/Default.dir/src/main.cpp.o -c /home/td/dev/cpp/functional/src/main.cpp",
+  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra -Wswitch-enum   -o CMakeFiles/Default.dir/src/main.cpp.o -c /home/td/dev/cpp/functional/src/main.cpp",
   "file": "/home/td/dev/cpp/functional/src/main.cpp"
 },
 {
   "directory": "/home/td/dev/cpp/functional",
-  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra   -o CMakeFiles/Tests.dir/tests/test.cpp.o -c /home/td/dev/cpp/functional/tests/test.cpp",
+  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra -Wswitch-enum   -o CMakeFiles/Tests.dir/tests/test.cpp.o -c /home/td/dev/cpp/functional/tests/test.cpp",
   "file": "/home/td/dev/cpp/functional/tests/test.cpp"
+},
+{
+  "directory": "/home/td/dev/cpp/functional",
+  "command": "/usr/bin/c++   -I/home/td/dev/cpp/functional/include -I/home/td/dev/cpp/functional/external/Catch2/single_include -I/home/td/dev/cpp/functional/external/picobench/include/picobench -I/home/td/dev/cpp/functional/external/NanoRange/include  -g -std=c++2a  -Wall -Wextra -Wswitch-enum   -o CMakeFiles/Tests.dir/tests/tree_test.cpp.o -c /home/td/dev/cpp/functional/tests/tree_test.cpp",
+  "file": "/home/td/dev/cpp/functional/tests/tree_test.cpp"
 }
 ]

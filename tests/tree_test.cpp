@@ -7,12 +7,12 @@ TEST_CASE("Tree", "[BST]")
 {
     SECTION("Tree creation")
     {
-        BST_IT Tree{1,2,3,99,54};
+        /*BST_IT Tree{1,2,3,99,54};
 
         REQUIRE(Tree.member(1));
         REQUIRE(Tree.member(2));
         REQUIRE(Tree.member(3));
         REQUIRE(Tree.member(99));
-        REQUIRE(Tree.member(54));
+        REQUIRE(Tree.member(54));*/
     }
 }

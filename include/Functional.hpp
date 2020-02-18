@@ -56,7 +56,6 @@ namespace pure
         return std::bind(func, _2, _1);
     }
 
-
     //TODO Use ContainerIn and ContainerOut instead of nested templates
     //https://github.com/Dobiasd/FunctionalPlus/blob/master/include/fplus/transform.hpp
     template <typename ArgType,
@@ -86,6 +85,7 @@ namespace pure
             "The container must be iterable"
             );
 
+        //Hierfuer muss Container<Ret> default constructible sein.
         Container<Ret> temp;
         for(const ArgType& it: vector)
         {
@@ -141,8 +141,53 @@ namespace pure
     template<typename C, typename T>
     std::function<T(const C& container)> product = std::bind(fold<C, T, std::multiplies<T>>,std::placeholders::_1, std::multiplies<T>(),1);
 
+    //TODO Alle Klassen sollten fmap implementieren welchen von der map funktion praeferiert gecalled wird
+    //als fallback wird dann die iterator version benutzt.
+
+    //TODO was ist wenn ich da heap kram reinpacke Maybe(new int(4));
+    //Wuerde ich ja gerne verbieten
+    template<typename T>
+    class Maybe
+    {
+    public:
+
+        using value_type = T;
+
+        Maybe() = default;
+        Maybe(T value_) : value(value_){}
+
+        Maybe(const Maybe& rhs) = default;
+        Maybe(Maybe&& rhs) = default;
+
+        Maybe& operator=(const Maybe& rhs) = default;
+        Maybe& operator=(Maybe&& rhs) = default;
+
+    template <typename ArgType = T,
+              typename F,
+              typename Ret = typename std::result_of<F(ArgType)>::type>
+    auto fmap(F f)
+    {
+        static_assert(
+            std::is_convertible<F,std::function<Ret(const ArgType)>>::value,
+            "map requires a function of const Ret (const ArgType)"
+            );
+
+        static_assert(
+            std::is_copy_constructible<Ret>::value,
+            "The intern type must be copy constructible because the default cctor of maybe calls the default cctor of RetType"
+            );
 
 
+        //Hierfuer muss Container<Ret> default constructible sein.
+        auto temp = Maybe(f(value));
+        //Cotainer must be copyable(even if copy ellision is performed the ctors must still be definde)
+        return temp;
+    }
+    private:
+        T value;
+
+
+    };
 
     //push_back() && push_front() &&
     //TODO List::tail is wrong, it should return all the elements except the head not only the last
@@ -220,8 +265,8 @@ namespace pure
         std::size_t __length = 0;
 
     public:
-        iterator cbegin() const {return iterator(mHead);}
-        iterator cend() const {return iterator(mTail->next);}
+        iterator begin() const {return iterator(mHead);}
+        iterator end() const {return iterator(mTail->next);}
 
         List() = default;
         List(const std::initializer_list<T>& values)
@@ -505,13 +550,6 @@ namespace pure
         }
 
     }
-    //bitmapped vector tree/prefix tree
-    template<typename T>
-    class vector
-    {
-        
-    };
-
 
     template <typename ArgType,
               typename F,

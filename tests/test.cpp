@@ -1,14 +1,28 @@
 #include <iostream>
+#include <vector>
 
 #define CATCH_CONFIG_MAIN
 #include "../include/Functional.hpp"
 #include "../external/Catch2/single_include/catch2/catch.hpp"
 using namespace func::pure;
 
-TEST_CASE("map", "[FUNTIONS]")
+TEST_CASE("map", "[FUNCTIONS]")
 {
+    SECTION("Mapping over and empty container returns a empty container of the same typr")
+    {
+        std::vector<int> emptyVec;
+        auto test  = map(emptyVec, [](const int x){return x;});
+        REQUIRE(test.size() == 0);
+    }
 
+    SECTION("Mapping over a non empty container preservs length")
+    {
+        std::vector<int> nonEmptyVec{1,2,3,4,5};
+        auto test  = map(nonEmptyVec, [](const int x){return x;});
+        REQUIRE(test.size() == nonEmptyVec.size());
+    }
 }
+
 TEST_CASE("Construction", "[LIST")
 {
         SECTION("Empty List as length 0", "[LIST]")
@@ -16,7 +30,6 @@ TEST_CASE("Construction", "[LIST")
                 List<int> emptyList;
                 REQUIRE(emptyList.length() == 0);
         }
-
 
         SECTION("Empty init. List works with List" , "[LIST]")
         {
@@ -29,7 +42,7 @@ TEST_CASE("Construction", "[LIST")
                 List<int> listWithOneElement{{1}};
                 REQUIRE(listWithOneElement.length() == 1);
         }
-        
+
         SECTION("List constructor correctly increments length(3)", "[LIST]")
         {
                 List<int> listWithThreeElements{{1,2,3}};

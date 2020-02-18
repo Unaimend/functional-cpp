@@ -3,7 +3,6 @@
 #include <list>
 #include "../include/Functional.hpp"
 
-#include "../external/NanoRange/nanorange.hpp"
 struct A
 {
     int a = 5;
@@ -113,38 +112,13 @@ std::vector<int> after = func::pure::filter<int>(to_test, is_positive);
 for(const auto& it : after)
     std::cout << "Filter"<< it << std::endl;
 */
+    using namespace func::pure;
+    Maybe test{5};
+    Maybe test1 = 4;
+
+    auto test3 = test.fmap(inc);
+
 puts("-----------------------------------------------------------------");
-
-
-//B o{std::vector<int*>{new int(5), new int(7)}};
-//o.cant_change();
-
-
-
-func::pure::List<int> listi1;
-std::vector what{100,2,3,4,5,6};
-const auto func  = [](/*const func::pure::List<int>::Node*/const auto& val)
-    {
-        std::cout << val << std::endl;
-    };
-
-
-auto l2 = listi1.push_back(8);
-auto l3 = l2.push_back(9);
-auto l4 = l3.push_back(10);
-auto l5 = l4.push_back(11);
-
-//auto wadsad = func::pure::map(what, inc);
-auto l6 = func::pure::map(l5, inc);
-//auto l7 = func::pure::map(what, inc);
-
-
-auto ar = func::pure::fold(l5, add, 0);
-
-
-
-
-auto even = [](int i){ return 0 == i % 2; };
 //auto view = nano::views::filter(l5, even);
 /*std::vector<int> ints{0,1,2,3,4,5};
 auto square = [](int i) { return i * i; };
